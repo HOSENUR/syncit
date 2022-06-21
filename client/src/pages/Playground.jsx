@@ -1,13 +1,8 @@
-/* This example requires Tailwind CSS v2.0+ */
+
 import { Fragment, useState, useEffect, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import {
-  BookmarkAltIcon,
-  FireIcon,
-  HomeIcon,
-  InboxIcon,
   MenuIcon,
-  UserIcon,
   XIcon,
 } from "@heroicons/react/outline";
 import CodeMirror from "codemirror";
@@ -18,25 +13,10 @@ import "codemirror/mode/javascript/javascript";
 import { setSocket } from "../utils/Socket";
 import ACTIONS from "../utils/Actions";
 import { useData } from "../contexts/DataContext";
-import useWindowSize from "react-use/lib/useWindowSize";
 import Confetti from "react-confetti";
-
-const user = {
-  name: "Emily Selman",
-  email: "emily.selman@example.com",
-  imageUrl:
-    "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-};
-const navigation = [
-  { name: "Home", href: "#", icon: HomeIcon },
-  { name: "Trending", href: "#", icon: FireIcon },
-  { name: "Bookmarks", href: "#", icon: BookmarkAltIcon },
-  { name: "Messages", href: "#", icon: InboxIcon },
-  { name: "Profile", href: "#", icon: UserIcon },
-];
+import { RedirectToSignIn, SignedIn, SignedOut } from "@clerk/clerk-react";
 
 export default function Playground() {
-  const { width, height } = useWindowSize();
   const { roomID, nickname } = useData();
   const [number, setNumber] = useState(100);
   const socketRef = useRef(null);
@@ -55,6 +35,23 @@ export default function Playground() {
       socketRef.current.emit(ACTIONS.JOIN, {
         roomID: roomID,
         nickname: nickname,
+      });
+      socketRef.current.emit(ACTIONS.JOINED, ({
+        clients,
+        nickname,
+        socketID
+      })=>{
+        if(nickname!=this.nickname){
+          toast.success('🦄 Wow so easy!', {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            });
+        }
       });
     }
 
@@ -76,6 +73,7 @@ export default function Playground() {
 
   return (
     <>
+    <SignedIn>
       <Confetti
         numberOfPieces={number}
         drawShape={(ctx) => {
@@ -141,53 +139,7 @@ export default function Playground() {
                     </button>
                   </div>
                 </Transition.Child>
-                <div className="pt-5 pb-4">
-                  <div className="flex-shrink-0 flex items-center px-4">
-                    <img
-                      className="h-8 w-auto"
-                      src="https://res.cloudinary.com/hosenur/image/upload/v1652082488/Logos/syncit_jstqnu.svg"
-                      alt="Workflow"
-                    />
-                  </div>
-                  <nav aria-label="Sidebar" className="mt-5">
-                    <div className="px-2 space-y-1">
-                      {navigation.map((item) => (
-                        <a
-                          key={item.name}
-                          href={item.href}
-                          className="group p-2 rounded-md flex items-center text-base font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                        >
-                          <item.icon
-                            className="mr-4 h-6 w-6 text-gray-400 group-hover:text-gray-500"
-                            aria-hidden="true"
-                          />
-                          {item.name}
-                        </a>
-                      ))}
-                    </div>
-                  </nav>
-                </div>
-                <div className="flex-shrink-0 flex border-t border-gray-200 p-4">
-                  <a href="#" className="flex-shrink-0 group block">
-                    <div className="flex items-center">
-                      <div>
-                        <img
-                          className="inline-block h-10 w-10 rounded-full"
-                          src={user.imageUrl}
-                          alt=""
-                        />
-                      </div>
-                      <div className="ml-3">
-                        <p className="text-base font-medium text-gray-700 group-hover:text-gray-900">
-                          {user.name}
-                        </p>
-                        <p className="text-sm font-medium text-gray-500 group-hover:text-gray-700">
-                          Account Settings
-                        </p>
-                      </div>
-                    </div>
-                  </a>
-                </div>
+
               </div>
             </Transition.Child>
             <div className="flex-shrink-0 w-14" aria-hidden="true">
@@ -208,34 +160,6 @@ export default function Playground() {
                     alt="Workflow"
                   />
                 </div>
-                <nav
-                  aria-label="Sidebar"
-                  className="py-6 flex flex-col items-center space-y-3"
-                >
-                  {navigation.map((item) => (
-                    <a
-                      key={item.name}
-                      href={item.href}
-                      className="flex items-center p-4 rounded-lg text-emerald-200 hover:bg-emerald-700"
-                    >
-                      <item.icon className="h-6 w-6" aria-hidden="true" />
-                      <span className="sr-only">{item.name}</span>
-                    </a>
-                  ))}
-                </nav>
-              </div>
-              <div className="flex-shrink-0 flex pb-5">
-                <a href="#" className="flex-shrink-0 w-full">
-                  <img
-                    className="block mx-auto h-10 w-10 rounded-full"
-                    src={user.imageUrl}
-                    alt=""
-                  />
-                  <div className="sr-only">
-                    <p>{user.name}</p>
-                    <p>Account settings</p>
-                  </div>
-                </a>
               </div>
             </div>
           </div>
@@ -276,6 +200,10 @@ export default function Playground() {
           </main>
         </div>
       </div>
-    </>
+    </SignedIn>
+      <SignedOut>
+        <RedirectToSignIn />
+      </SignedOut>
+      </>
   );
 }

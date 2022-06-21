@@ -4,7 +4,8 @@ import { MenuIcon, XIcon } from "@heroicons/react/outline";
 import { ChevronRightIcon } from "@heroicons/react/solid";
 import { v4 as uuidV4 } from "uuid";
 import { useData } from "../contexts/DataContext";
-
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 const navigation = [
   { name: "Product", href: "#" },
   { name: "Features", href: "#" },
@@ -14,11 +15,22 @@ const navigation = [
 
 export default function Landing() {
   const { setRoomID, roomID, nickname, setNickname } = useData();
+  const navigate = useNavigate();
 
   const createPlayground = (e) => {
     e.preventDefault();
     const id = uuidV4();
     setRoomID(id);
+    navigate(`/playground/${id}`);
+    toast.success('New PlayGround Created Successfully!', {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      });
   };
 
   return (

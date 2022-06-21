@@ -1,4 +1,6 @@
 import { useContext, useState, createContext } from "react";
+import { ToastContainer } from 'react-toastify';
+  import 'react-toastify/dist/ReactToastify.css';
 
 const DataContext = createContext();
 
@@ -19,6 +21,7 @@ export function DataProvider({ children }) {
 
   return (
     <DataContext.Provider value={value}>
+      <ToastContainer />
       {!loading && children}
     </DataContext.Provider>
   );
